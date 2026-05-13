@@ -16,7 +16,7 @@
     #define OUTPUT_BIT1 6
     #define OUTPUT_BIT2 7
 
-    
+    //インターフェースに対してデータを出力するときに種類を決定させるセレクタピン定義
     class IndexSelector{
         public:
             static constexpr int TEMPERATURE =TEMPERATURE_INDEX;
@@ -26,6 +26,7 @@
             static constexpr int OVERALL = OVERALL_INDEX;
     };
 
+    //インターフェースに値データを出力するときに使用する出力バスの定義
     class OutputBus{
         public:
             static constexpr int BIT0 = OUTPUT_BIT0;
