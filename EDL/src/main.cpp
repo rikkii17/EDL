@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include<DFRobot_ENS160.h>
+
 #include "hardware_helper.hpp"
 
 void setup() {

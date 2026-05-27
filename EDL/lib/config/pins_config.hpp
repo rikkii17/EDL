@@ -32,6 +32,7 @@
             static constexpr int BIT0 = OUTPUT_BIT0;
             static constexpr int BIT1 = OUTPUT_BIT1;
             static constexpr int BIT2 = OUTPUT_BIT2;
+            //ex. 1→bit0=1,bit1=0,bit2=0
     };
 
 #endif //PINS_CONFIG_HPP
