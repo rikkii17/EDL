@@ -11,14 +11,17 @@ void setup() {
   Serial.begin(9600);
   //PCとの通信に必要。
 
-  if (ens160_i2c.begin() != 0) { //ENS160センサーの初期化。begin()メソッドはセンサーの初期化を行い、成功した場合は0を返す。
+  //ENS160センサーの初期化コード
+  if (ens160_i2c.begin() != NO_ERR) { //ENS160センサーの初期化。begin()メソッドはセンサーの初期化を行い、成功した場合は0を返す。
     Serial.println("Failed to initialize ENS160 sensor!"); //初期化に失敗した場合のエラーメッセージ。
     while (1); //無限ループで停止。
   }
 
+
 }
 
 void loop() {
+  //Analog通信のテストコード
   /*
   Analog通信のテストコード
   float A0_value = AnalogReader::convertToVoltage(analogRead(A0));
@@ -28,5 +31,7 @@ void loop() {
   delay(1000);
   */
 
+  //ENS160センサーのテストコード
+  
 
 }
