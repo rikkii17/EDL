@@ -1,6 +1,6 @@
-#ifndef HARDWARE_HELPER_HPP
+#ifndef ANALOG_DEVICE_HPP
 
-#define HARDWARE_HELPER_HPP
+#define ANALOG_DEVICE_HPP
 #include <Arduino.h>
 
 class AnalogReader{
