@@ -8,4 +8,4 @@ class AnalogReader{
         static float convertToVoltage(int rawVoltage);
 };
 
-#endif // HARDWARE_HELPER_HPP
+#endif // ANALOG_DEVICE_HPP
