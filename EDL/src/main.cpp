@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include<DFRobot_ENS160.h>
 
-#include "hardware_helper.hpp"
+#include "analog_device.hpp"
 
 void setup() {
   Serial.begin(9600);
