@@ -10,6 +10,7 @@ void setup() {
 
 void loop() {
   float A0_value = AnalogReader::convertToVoltage(analogRead(A0));
+  Serial.println("main");
   Serial.print("A0_value: ");
   Serial.println(A0_value);
   //Serial.println("\n");
