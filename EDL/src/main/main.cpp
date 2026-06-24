@@ -6,6 +6,8 @@
 void setup() {
   Serial.begin(9600);
   //PCとの通信に必要。
+  delay(5000);
+  Serial.println("maincode");
 }
 
 void loop() {

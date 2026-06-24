@@ -10,9 +10,12 @@
             static constexpr int MAX_VALUE = 7;
             static constexpr int NUMBER_OF_BUS = 5;
 
+            static int testOutput(int index);
+
         public:
             InterFace(int numberOfBus,int maxValue);    //コンストラクタ
-
+            
+            int outputNumberOfBus(int index,int value);
 
     };
 
