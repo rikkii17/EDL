@@ -9,11 +9,12 @@
 void setup(){
     Serial.begin(9600);
     delay(5000);
-    Serial1.println("OutputTest");
+    Serial.println("OutputTest");
 
 }
 
 void loop(){
-    InterFace outputInterface();
-    Serial.println("output test");
+    InterFace outputInterFace;
+    
+
 }

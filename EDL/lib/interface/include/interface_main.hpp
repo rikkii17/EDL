@@ -13,7 +13,9 @@
             static int testOutput(int index);
 
         public:
-            InterFace(int numberOfBus,int maxValue);    //コンストラクタ
+            InterFace();    //コンストラクタ
+
+            //void begin();
             
             int outputNumberOfBus(int index,int value);
 
