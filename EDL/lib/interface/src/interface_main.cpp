@@ -1,5 +1,8 @@
 #include"interface_main.hpp"
 #include"pins_config.hpp"
+#include"err.hpp"
+
+
 
 InterFace::InterFace(){
     pinMode(IndexSelector::TEMPERATURE,OUTPUT);
@@ -21,27 +24,6 @@ InterFace::InterFace(){
     InterFace::testOutput(IndexSelector::OVERALL);
 
 }
-/*
-void InterFace::begin(){
-    pinMode(IndexSelector::TEMPERATURE,OUTPUT);
-    pinMode(IndexSelector::HUMIDITY,OUTPUT);
-    pinMode(IndexSelector::NOISE,OUTPUT);
-    pinMode(IndexSelector::CO2,OUTPUT);
-    pinMode(IndexSelector::OVERALL,OUTPUT);
-
-    pinMode(OutputBus::BIT0,OUTPUT);
-    pinMode(OutputBus::BIT1,OUTPUT);
-    pinMode(OutputBus::BIT2,OUTPUT);
-
-
-    //すべての利用するデジタルBピンを出力にする。
-    InterFace::testOutput(IndexSelector::TEMPERATURE);
-    InterFace::testOutput(IndexSelector::HUMIDITY);
-    InterFace::testOutput(IndexSelector::NOISE);
-    InterFace::testOutput(IndexSelector::CO2);
-    InterFace::testOutput(IndexSelector::OVERALL);
-}
-*/
 
 int InterFace::testOutput(int index){
     //テスト用の出力関数
@@ -84,5 +66,10 @@ int InterFace::testOutput(int index){
 }
 
 int InterFace::outputNumberOfBus(int index,int value){
+    if(value > 255) return(ErrCode::EXCEEDED_VALUE_RANGE);  //1byteを超えた場合、エラーによって処理を中断
+    int8_t value8_t = value;
+
     
+
+    digitalWrite(index,HIGH);
 }

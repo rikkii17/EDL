@@ -14,8 +14,6 @@
 
         public:
             InterFace();    //コンストラクタ
-
-            //void begin();
             
             int outputNumberOfBus(int index,int value);
 
