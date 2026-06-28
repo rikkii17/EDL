@@ -69,7 +69,18 @@ int InterFace::outputNumberOfBus(int index,int value){
     if(value > 255) return(ErrCode::EXCEEDED_VALUE_RANGE);  //1byteを超えた場合、エラーによって処理を中断
     int8_t value8_t = value;
 
-    
+    //indexの信号をLOWに設定する（レジスタに0を保存させないため
+    for(int pinPosition = IndexSelector::TEMPERATURE;pinPosition <= IndexSelector::OVERALL;pinPosition++)   digitalWrite(pinPosition,LOW);
+    //値を全てLOWに変えて０として設定する。
+    for(int pinPosition = OutputBus::BIT0;pinPosition <= OutputBus::BIT2;pinPosition++) digitalWrite(pinPosition,LOW);
 
+    //それぞれのBITで信号を与える。
+    if((value >> 0) & 1)    digitalWrite(OutputBus::BIT0,HIGH);
+    if((value >> 1) & 1)    digitalWrite(OutputBus::BIT1,HIGH);
+    if((value >> 2) & 1)    digitalWrite(OutputBus::BIT2,HIGH);
+    //信号を任意のレジスタに保存させる。
     digitalWrite(index,HIGH);
+
+    return(ErrCode::OK);
+
 }

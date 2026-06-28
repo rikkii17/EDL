@@ -3,6 +3,7 @@
     class ErrCode{
         public:
             static constexpr int EXCEEDED_VALUE_RANGE = -1;
+            static constexpr int OK = 0;
     };
 
 #endif
