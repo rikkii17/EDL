@@ -16,13 +16,31 @@ void setup(){
 
 void loop(){
     InterFace outputInterFace;
-    Serial.println("Prease Write the Index:");
     String inputIndex;
-    if(Serial.available()>0)    inputIndex = Serial.readStringUntil('\n');
-    Serial.println("Prease Write the Value:");
+    int indexBus;
     String inputValue;
+    while(true){
+    Serial.println("Prease Write the Index:");
+    if(Serial.available()>0)    inputIndex = Serial.readStringUntil('\n');
+
+    if(inputIndex == "温度")        indexBus = IndexSelector::TEMPERATURE;
+    else if(inputIndex == "湿度")   indexBus = IndexSelector::HUMIDITY;
+    else if(inputIndex == "CO2")    indexBus = IndexSelector::CO2;
+    else if(inputIndex == "騒音")   indexBus = IndexSelector::NOISE;
+    else if(inputIndex == "総合")   indexBus = IndexSelector::OVERALL;
+    else{
+        Serial.println("Input err");
+        continue;
+    }
+    break;
+    }
+    while (true){
+    Serial.println("Prease Write the Value:");
     if(Serial.available()>0)    inputValue = Serial.readStringUntil('\n');
-    //これをint型に変換すること。
+    
+
+    break;
+    }
 
     Serial.println("test output");
     ErrCode::checkErr(outputInterFace.outputNumberOfBus());
