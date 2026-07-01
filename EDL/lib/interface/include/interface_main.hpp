@@ -14,6 +14,8 @@
 
         public:
             InterFace();    //コンストラクタ
+
+            int begin();  //初期化関数
             
             int outputNumberOfBus(int index,int value);
 

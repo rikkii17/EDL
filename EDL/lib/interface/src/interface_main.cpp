@@ -5,6 +5,10 @@
 
 
 InterFace::InterFace(){
+
+}
+
+int InterFace::begin(){
     pinMode(IndexSelector::TEMPERATURE,OUTPUT);
     pinMode(IndexSelector::HUMIDITY,OUTPUT);
     pinMode(IndexSelector::NOISE,OUTPUT);
@@ -61,6 +65,8 @@ int InterFace::testOutput(int index){
     digitalWrite(OutputBus::BIT0, LOW);
     digitalWrite(OutputBus::BIT1, LOW);
     digitalWrite(OutputBus::BIT2, LOW);
+    digitalWrite(index, LOW);
+    return(ErrCode::OK);    
     
 
 }
