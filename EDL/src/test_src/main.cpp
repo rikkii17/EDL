@@ -52,7 +52,8 @@ void loop(){
         continue;
     }
     valueBus = inputValue.toInt();
-    if(valueBus > 8 || valueBus < 0){
+    Serial.println(valueBus);
+    if(valueBus >= 8 || valueBus <= 0){
         Serial.println("Input err");
         continue;
     }
@@ -61,8 +62,14 @@ void loop(){
     }
 
     Serial.println("test output");
+
+    if((valueBus >> 0) & 1)    Serial.println("BIT0");
+    if((valueBus >> 1) & 1)    Serial.println("BIT1");
+    if((valueBus >> 2) & 1)    Serial.println("BIT2");
+
     ErrCode::checkErr(outputInterFace.outputNumberOfBus(indexBus,valueBus),&Serial);
     delay(100000);
+   delay(100000);
     
 
 }
