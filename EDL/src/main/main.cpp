@@ -1,13 +1,37 @@
 #include <Arduino.h>
 #include<DFRobot_ENS160.h>
+#include<Wire.h>
+#include<cpp_helper.hpp>
+
+#include "analog_device.hpp"
+#include"interface_main.hpp"
+#include"pins_config.hpp"
+#include"err.hpp"
 
 #include "analog_device.hpp"
 
+
+InterFace outputInterFace;
+
 void setup() {
+  delay(20000);
   Serial.begin(9600);
-  //PCとの通信に必要。
-  delay(5000);
+  Serial.println("");
   Serial.println("maincode");
+  Serial.println("");
+  Serial.println("-----Setting start-----");
+
+  Serial.print("\t(Test) Starting Serial port: ");
+  Serial.println("OK");
+
+  Serial.print("\tStariting Wire: ");
+  Wire.begin();
+  Serial.println("OK");
+
+
+  Serial.print("\ttest Interface:"); 
+  outputInterFace.begin();
+  Serial.println("\tOK");
 }
 
 void loop() {
