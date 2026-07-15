@@ -15,6 +15,9 @@
 InterFace outputInterFace;
 
 void setup() {
+  bool findTempratureAndHumidityDevice = 0;
+  bool findCo2Device = 0;
+
   delay(20000);
   //Serial通信環境の立ち上げ
   Serial.begin(9600);
@@ -30,23 +33,26 @@ void setup() {
   Wire.begin();
   Serial.println("OK");
   Serial.println("\tI2C pins scanning");
-  {
-    bool findTempratureAndHumidityDevice = 0;
-    bool findCo2Device = 0;
     
-    for(int checkAddress = 1;checkAddress < 127;checkAddress++){
-      Wire.beginTransmission(checkAddress);
-      bool error = Wire.endTransmission();
-      if(error == 0){
-        Serial.print("\t\tI2C device find (address 0x");
-        if(checkAddress < 16) Serial.print("0");
-        Serial.print(checkAddress,HEX);
-        Serial.println(")");
+  for(int checkAddress = 1;checkAddress < 127;checkAddress++){
+    Wire.beginTransmission(checkAddress);
+    bool error = Wire.endTransmission();
+    if(error == 0){
+      Serial.print("\t\tI2C device find (address 0x");
+      if(checkAddress < 16) Serial.print("0");
+      Serial.print(checkAddress,HEX);
+      Serial.println(")");
 
-        if(checkAddress == Ens160SensorAddress::TEMPERATURE_HUMIDITY) findTempratureAndHumidityDevice = true;
-        if(checkAddress == Ens160SensorAddress::CO2)  findCo2Device = true;
-      }
+      if(checkAddress == Ens160SensorAddress::TEMPERATURE_HUMIDITY) findTempratureAndHumidityDevice = true;
+      else if(checkAddress == Ens160SensorAddress::CO2)  findCo2Device = true;
     }
+  }
+
+  if(findTempratureAndHumidityDevice){
+    Serial.print("\tfind and initializing Temperature and humidity meter");
+    Wire.begin(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
+  
+
   }
 
 
