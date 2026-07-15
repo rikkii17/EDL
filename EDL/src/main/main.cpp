@@ -6,6 +6,7 @@
 #include "analog_device.hpp"
 #include"interface_main.hpp"
 #include"pins_config.hpp"
+#include"device_path.hpp"
 #include"err.hpp"
 
 #include "analog_device.hpp"
@@ -15,30 +16,45 @@ InterFace outputInterFace;
 
 void setup() {
   delay(20000);
+  //Serial通信環境の立ち上げ
   Serial.begin(9600);
   Serial.println("");
   Serial.println("maincode");
   Serial.println("");
   Serial.println("-----Setting start-----");
-
   Serial.print("\t(Test) Starting Serial port: ");
   Serial.println("OK");
 
+  //Wire通信環境の立ち上げ
   Serial.print("\tStariting Wire: ");
   Wire.begin();
   Serial.println("OK");
+  Serial.println("\tI2C pins scanning");
+  {
+    bool findTempratureAndHumidityDevice = 0;
+    bool findCo2Device = 0;
+    
+    for(int checkAddress = 1;checkAddress < 127;checkAddress++){
+      Wire.beginTransmission(checkAddress);
+      bool error = Wire.endTransmission();
+      if(error == 0){
+        Serial.print("\t\tI2C device find (address 0x");
+        if(checkAddress < 16) Serial.print("0");
+        Serial.print(checkAddress,HEX);
+        Serial.println(")");
+
+        if(checkAddress == Ens160SensorAddress::TEMPERATURE_HUMIDITY) findTempratureAndHumidityDevice = true;
+        if(checkAddress == Ens160SensorAddress::CO2)  findCo2Device = true;
+      }
+    }
+  }
 
 
   Serial.print("\ttest Interface:"); 
   outputInterFace.begin();
-  Serial.println("\tOK");
+  Serial.println("OK");
 }
 
 void loop() {
-  float A0_value = AnalogReader::convertToVoltage(analogRead(A0));
-  Serial.println("main");
-  Serial.print("A0_value: ");
-  Serial.println(A0_value);
-  //Serial.println("\n");
-  delay(1000);
+
 }
