@@ -13,6 +13,7 @@
 
 
 InterFace outputInterFace;
+DFRobot_ENS160_I2C co2(&Wire,Ens160SensorAddress::CO2);
 
 void setup() {
   bool findTempratureAndHumidityDevice = 0;
@@ -51,6 +52,7 @@ void setup() {
   if(findTempratureAndHumidityDevice){
     Serial.print("\tfind and initializing Temperature and humidity meter");
     Wire.begin(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
+    
   
 
   }
