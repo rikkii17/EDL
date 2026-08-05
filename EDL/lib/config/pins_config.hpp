@@ -5,16 +5,16 @@
     //Arduinoのピン位置を定義しているファイル。
 
     //各指標表示時の信号先セレクタピンの定義
-    #define TEMPERATURE_INDEX 0
-    #define HUMIDITY_INDEX 1
-    #define NOISE_INDEX 2
-    #define CO2_INDEX 3
-    #define OVERALL_INDEX 4
+    #define TEMPERATURE_INDEX 4
+    #define HUMIDITY_INDEX 5
+    #define NOISE_INDEX 6
+    #define CO2_INDEX 7
+    #define OVERALL_INDEX 8
 
     //Output bus に使うvalueピンの定義
-    #define OUTPUT_BIT0 5
-    #define OUTPUT_BIT1 6
-    #define OUTPUT_BIT2 7
+    #define OUTPUT_BIT0 1
+    #define OUTPUT_BIT1 2
+    #define OUTPUT_BIT2 3
 
     //インターフェースに対してデータを出力するときに種類を決定させるセレクタピン定義
     class IndexSelector{

@@ -19,6 +19,9 @@ int InterFace::begin(){
     pinMode(OutputBus::BIT1,OUTPUT);
     pinMode(OutputBus::BIT2,OUTPUT);
 
+    for(int pinPosition = IndexSelector::TEMPERATURE;pinPosition <= IndexSelector::OVERALL;pinPosition++)   digitalWrite(pinPosition,LOW);
+    for(int pinPosition = OutputBus::BIT0;pinPosition <= OutputBus::BIT2;pinPosition++) digitalWrite(pinPosition,LOW);
+
 
     //すべての利用するデジタルBピンを出力にする。
     InterFace::testOutput(IndexSelector::TEMPERATURE);
@@ -31,40 +34,59 @@ int InterFace::begin(){
 
 int InterFace::testOutput(int index){
     //テスト用の出力関数
-    digitalWrite(index, HIGH);
+    digitalWrite(index, LOW);
     delay(1000);
     //2を出力
     digitalWrite(OutputBus::BIT0, HIGH);
+    digitalWrite(index, HIGH);
     delay(1000);
+    digitalWrite(index, LOW);
     digitalWrite(OutputBus::BIT0, LOW);
+
     //4を出力
     digitalWrite(OutputBus::BIT1, HIGH);
+    digitalWrite(index, HIGH);
     delay(1000);
+    
     //5を出力
+    digitalWrite(index, LOW);
     digitalWrite(OutputBus::BIT0, HIGH);
+    digitalWrite(index, HIGH);
     delay(1000);
+
     digitalWrite(OutputBus::BIT0, LOW);
     digitalWrite(OutputBus::BIT1, LOW);
+    digitalWrite(index, LOW);
     //4を出力
     digitalWrite(OutputBus::BIT2, HIGH);
+    digitalWrite(index, HIGH);
     delay(1000);
+    digitalWrite(index, LOW);
     
     if(index != IndexSelector::OVERALL){
         //5を出力
         digitalWrite(OutputBus::BIT0, HIGH);
+        digitalWrite(index, HIGH);
         delay(1000);
+        digitalWrite(index, LOW);
         digitalWrite(OutputBus::BIT0, LOW);
+
         //6を出力
         digitalWrite(OutputBus::BIT1, HIGH);
+        digitalWrite(index, HIGH);
         delay(1000);
+        digitalWrite(index, LOW);
         //7を出力
         digitalWrite(OutputBus::BIT0, HIGH);
+        digitalWrite(index, HIGH);
         delay(1000);
     }
     //終了コード
+    digitalWrite(index, LOW);
     digitalWrite(OutputBus::BIT0, LOW);
     digitalWrite(OutputBus::BIT1, LOW);
     digitalWrite(OutputBus::BIT2, LOW);
+    digitalWrite(index, HIGH);
     digitalWrite(index, LOW);
     return(ErrCode::OK);    
     

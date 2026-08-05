@@ -34,8 +34,18 @@ void setup() {
 
 void loop() {
 
+    //すべての利用するデジタルBピンを出力にする。
+    InterFace::testOutput(IndexSelector::TEMPERATURE);
+    InterFace::testOutput(IndexSelector::HUMIDITY);
+    InterFace::testOutput(IndexSelector::NOISE);
+    InterFace::testOutput(IndexSelector::CO2);
+    InterFace::testOutput(IndexSelector::OVERALL);
+
+
+  /*
+
   for(int temp = 4;temp>0;temp--){
-    output[temp] = output[temp-1]
+    output[temp] = output[temp-1];
   }
 
     float A0_value = AnalogReader::convertToVoltage(analogRead(A0));
@@ -54,4 +64,5 @@ void loop() {
       outputInterFace.outputNumberOfBus(temp,output[temp]);
   }
   delay(1000);
+  */
 }

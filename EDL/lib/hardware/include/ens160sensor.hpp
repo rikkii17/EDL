@@ -15,6 +15,5 @@
             static int8_t init(TwoWire wire);
         };
     };
-}
 
 #endif //ENS160SENSOR_HPP
