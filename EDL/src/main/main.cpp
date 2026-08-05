@@ -51,21 +51,22 @@ void setup() {
   }
 
   if(findTempratureAndHumidityDevice){
-    Serial.print("\tfind and initializing Temperature and humidity meter");
+    Serial.print("\tfind and initializing Temperature and humidity meter status: ");
     temperatureAndHumidity.begin();
     Serial.println("OK");
-    
-    Serial.print("\tTemperature and humidity meter status: ");
+  }
+  else{
+    Serial.println("\tTemperature and humidity meter not found");
+  }
+
+  if(findCo2Device){
+    Serial.print("\tfind and initializing CO2 meter status: ");
     co2.begin();
     Serial.println("OK");
   }
-
-
-    
-  
-
+  else{
+    Serial.println("\tCO2 meter not found");
   }
-
 
   Serial.print("\ttest Interface:"); 
   outputInterFace.begin();
@@ -73,5 +74,5 @@ void setup() {
 }
 
 void loop() {
-
+  
 }
