@@ -13,14 +13,13 @@
 
 
 InterFace outputInterFace;
-DFRobot_ENS160_I2C temperatureAndHumidity(&Wire,Ens160SensorAddress::TEMPERATURE_HUMIDITY);
-DFRobot_ENS160_I2C co2(&Wire,Ens160SensorAddress::CO2);
+DFRobot_ENS160_I2C i2c(&Wire,Ens160SensorAddress::CO2);
 
 void setup() {
   bool findTempratureAndHumidityDevice = 0;
-  bool findCo2Device = 0;
+  bool findi2cDevice = 0;
 
-  delay(20000);
+  delay(5000);
   //Serial通信環境の立ち上げ
   Serial.begin(9600);
   Serial.println("");
@@ -46,31 +45,34 @@ void setup() {
       Serial.println(")");
 
       if(checkAddress == Ens160SensorAddress::TEMPERATURE_HUMIDITY) findTempratureAndHumidityDevice = true;
-      else if(checkAddress == Ens160SensorAddress::CO2)  findCo2Device = true;
+      else if(checkAddress == Ens160SensorAddress::CO2)  findi2cDevice = true;
     }
   }
 
-  if(findTempratureAndHumidityDevice){
-    Serial.print("\tfind and initializing Temperature and humidity meter status: ");
-    temperatureAndHumidity.begin();
-    Serial.println("OK");
-  }
-  else{
-    Serial.println("\tTemperature and humidity meter not found");
-  }
+  if(findi2cDevice){
+    Serial.println("\tfind and initializing I2C meter status: ");
+    if(i2c.begin() == 0){
+      Serial.println("\t\tI2C meter started");
+      i2c.setPWRMode(ENS160_STANDARD_MODE);
 
-  if(findCo2Device){
-    Serial.print("\tfind and initializing CO2 meter status: ");
-    co2.begin();
-    Serial.println("OK");
+      Serial.println("\t\tI2C meter wormup time: ");
+      while(i2c.getENS160Status() != 0){
+        if(i2c.getENS160Status() == 2){
+          Serial.println("\t\t\tsensor Note: Sensor is latest device.There is a possibility that the accuracy is poor.");
+          break;
+        }
+        delay(100);
+      }
+    }
   }
   else{
-    Serial.println("\tCO2 meter not found");
+    Serial.println("\tI2C meter not found");
   }
 
   Serial.print("\ttest Interface:"); 
   outputInterFace.begin();
   Serial.println("OK");
+  Serial.println("-----Setting end-----");
 }
 
 void loop() {
