@@ -35,6 +35,7 @@ void setup() {
   Serial.println("OK");
   Serial.println("\tI2C pins scanning");
     
+  //I2Cデバイスのアドレススキャン
   for(int checkAddress = 1;checkAddress < 127;checkAddress++){
     Wire.beginTransmission(checkAddress);
     bool error = Wire.endTransmission();
@@ -49,13 +50,14 @@ void setup() {
     }
   }
 
+  //COセンサの初期化
   if(findi2cDevice){
     Serial.println("\tfind and initializing I2C meter status: ");
     if(i2c.begin() == 0){
       Serial.println("\t\tI2C meter started");
       i2c.setPWRMode(ENS160_STANDARD_MODE);
 
-      Serial.println("\t\tI2C meter wormup time: ");
+      Serial.println("\t\tCO2 meter wormup time: ");
       while(i2c.getENS160Status() != 0){
         if(i2c.getENS160Status() == 2){
           Serial.println("\t\t\tsensor Note: Sensor is latest device.There is a possibility that the accuracy is poor.");
@@ -66,9 +68,10 @@ void setup() {
     }
   }
   else{
-    Serial.println("\tI2C meter not found");
+    Serial.println("\tCO2 meter not found");
   }
 
+  //出力インターフェースの初期化及びテスト
   Serial.print("\ttest Interface:"); 
   outputInterFace.begin();
   Serial.println("OK");
