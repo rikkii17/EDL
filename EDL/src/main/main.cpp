@@ -50,6 +50,21 @@ void setup() {
     }
   }
 
+  do{
+    //温湿度センサの初期化
+    if(findTempratureAndHumidityDevice){
+      Serial.print("\t find and initlizing temperature and humidity sensor: ");
+      //本来であればこの後１００ms以上待機が必要だが、電源投入後十分な時間が経過しているためとりあえず待機なしで実行
+      Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
+      Wire.write(0x71);
+      if(Wire.endTransmission() != 0){
+        Serial.println("Can not send comand to temperature and humidity sensor.\n Retrying...");
+        continue;
+      }
+      
+    }
+  }while();
+
   //COセンサの初期化
   if(findi2cDevice){
     Serial.println("\tfind and initializing I2C meter status: ");
@@ -79,5 +94,10 @@ void setup() {
 }
 
 void loop() {
-  
+  //温度の取得
+  Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
+
+
+  //等価CO2濃度の取得
+  uint16_t eco2 = i2c.getECO2();
 }
