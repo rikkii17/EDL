@@ -50,9 +50,11 @@ void setup() {
     }
   }
 
-  do{
+  if(findTempratureAndHumidityDevice){
+    u_int16_t initStatus[2] = {0,0};
+
     //温湿度センサの初期化
-    if(findTempratureAndHumidityDevice){
+    do{
       Serial.print("\t find and initlizing temperature and humidity sensor: ");
       //本来であればこの後１００ms以上待機が必要だが、電源投入後十分な時間が経過しているためとりあえず待機なしで実行
       Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
@@ -61,15 +63,15 @@ void setup() {
         Serial.println("Can not send comand to temperature and humidity sensor.\n Retrying...");
         continue;
       }
-      
-    }
-  }while();
+      initStatus[0] = Wire.requestFrom(Ens160SensorAddress::TEMPERATURE_HUMIDITY,2);  //とりあえず適当にAIに書かせたけどRequestFromなんて関数知らんからそこを調べること。
+    }while();
+  }
 
   //COセンサの初期化
   if(findi2cDevice){
-    Serial.println("\tfind and initializing I2C meter status: ");
+    Serial.println("\tfind and initializing CO2 meter status: ");
     if(i2c.begin() == 0){
-      Serial.println("\t\tI2C meter started");
+      Serial.println("\t\tCO2 meter started");
       i2c.setPWRMode(ENS160_STANDARD_MODE);
 
       Serial.println("\t\tCO2 meter wormup time: ");
@@ -78,7 +80,7 @@ void setup() {
           Serial.println("\t\t\tsensor Note: Sensor is latest device.There is a possibility that the accuracy is poor.");
           break;
         }
-        delay(100);
+        delay(100); //初期化が完了するまで待機させるためのバッファ時間
       }
     }
   }
