@@ -2,6 +2,7 @@
 #define ENS160SENSOR_HPP
 
     #include <Arduino.h>
+    #include <stdint.h>
     #include<Wire.h>
     #include<DFRobot_ENS160.h>
 
@@ -10,10 +11,15 @@
 
     class Ens160Sensor{
     public:
-        class Aht20{
+        class Aht20Request{
         public:
-            static int8_t init(TwoWire wire);
+            static const uint8_t GET_DEVICE_STATUS = 0x71;
+
+            
+            static bool getReceve(TwoWire *wire, uint8_t address, uint8_t *data, uint8_t dataLength);
+            
         };
+        
     };
 
 #endif //ENS160SENSOR_HPP
