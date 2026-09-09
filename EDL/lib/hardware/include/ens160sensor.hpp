@@ -18,7 +18,10 @@
             static const uint8_t INITLIZE_PARAM1 = 0x08;
             static const uint8_t INITLIZE_PARAM2 = 0x00;
 
-            
+            const TwoWire *wire;
+            const uint8_t address;
+
+            bool getReceve(uint8_t *data, uint8_t dataLength);
             static bool getReceve(TwoWire *wire, uint8_t address, uint8_t *data, uint8_t dataLength);
             
         };
