@@ -14,15 +14,23 @@
         class Aht20Request{
         public:
             static const uint8_t GET_DEVICE_STATUS = 0x71;
+
             static const uint8_t INITLIZE = 0xBE;
             static const uint8_t INITLIZE_PARAM1 = 0x08;
             static const uint8_t INITLIZE_PARAM2 = 0x00;
 
-            const TwoWire *wire;
+            static const uint8_t GET_DATA = 0xAC;
+            static const uint8_t GET_DATA_PARAM1 = 0x33;
+            static const uint8_t GET_DATA_PARAM2 = 0x00;
+
+
+            TwoWire *wire;  //基本的に歯変更はないが、内部関数を利用することからconstはつけない
             const uint8_t address;
 
             bool getReceve(uint8_t *data, uint8_t dataLength);
             static bool getReceve(TwoWire *wire, uint8_t address, uint8_t *data, uint8_t dataLength);
+
+            bool getData(uint8_t *data, uint8_t dataLength);
             
         };
         

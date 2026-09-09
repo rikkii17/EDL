@@ -17,7 +17,7 @@
 InterFace outputInterFace;
 DFRobot_ENS160_I2C i2c(&Wire,Ens160SensorAddress::CO2);
 
-Ens160Sensor::Aht20Request aht20Request;
+Ens160Sensor::Aht20Request aht20Request{&Wire, Ens160SensorAddress::TEMPERATURE_HUMIDITY};
 
 void setup() {
   bool findTempratureAndHumidityDevice = 0;
@@ -61,7 +61,6 @@ void setup() {
     do{
       //AHT20の操作関数の変数定義
       aht20Request.wire = &Wire;
-      aht20Request.address = Ens160SensorAddress::TEMPERATURE_HUMIDITY;
       Serial.print("\t find and initlizing temperature and humidity sensor: ");
       //本来であればこの後１００ms以上待機が必要だが、電源投入後十分な時間が経過しているためとりあえず待機なしで実行
       Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
@@ -97,11 +96,10 @@ void setup() {
         Serial.println("\t\t\tAHT sensor initlized");
 
         //受信Test
-
-
+        uint8_t testData[7] = {0};
+        
 
       }
-
     }while();
   }
 
