@@ -10,6 +10,8 @@
 #include"err.hpp"
 
 #include "analog_device.hpp"
+#include"ens160sensor.hpp"
+
 
 
 InterFace outputInterFace;
@@ -51,29 +53,60 @@ void setup() {
   }
 
   if(findTempratureAndHumidityDevice){
-    u_int16_t initStatus[2] = {0,0};
+    u_int16_t initStatus = 0;
 
     //温湿度センサの初期化
     do{
       Serial.print("\t find and initlizing temperature and humidity sensor: ");
       //本来であればこの後１００ms以上待機が必要だが、電源投入後十分な時間が経過しているためとりあえず待機なしで実行
       Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
-      Wire.write(0x71);
+      //AHT20の初期化状態を取得する
+      Wire.write(Ens160Sensor::Aht20Request::GET_DEVICE_STATUS);
+      //正常に送られたかの確認
       if(Wire.endTransmission() != 0){
         Serial.println("Can not send comand to temperature and humidity sensor.\n Retrying...");
         continue;
       }
-      initStatus[0] = Wire.requestFrom(Ens160SensorAddress::TEMPERATURE_HUMIDITY,2);  //とりあえず適当にAIに書かせたけどRequestFromなんて関数知らんからそこを調べること。
+      //AHT20の初期化ステータスの取得
+      Ens160Sensor::Aht20Request::getReceve(&Wire,Ens160SensorAddress::TEMPERATURE_HUMIDITY,(uint8_t*)&initStatus,sizeof(initStatus));
+      if(initStatus != 1){
+        //AHT20の初期化
+        Serial.println("\tAHT sensor is not initlized");
+        Serial.println("\t\tinitlizing AHT sensor...");
+        Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
+        Wire.write(Ens160Sensor::Aht20Request::INITLIZE);
+        Wire.write(Ens160Sensor::Aht20Request::INITLIZE_PARAM1);
+        Wire.write(Ens160Sensor::Aht20Request::INITLIZE_PARAM2);
+        if(Wire.endTransmission() != 0){
+          Serial.println("\t\t\tCan not send initlize comand to temperature and humidity sensor.\n Retrying...");
+          continue;
+        }
+        delay(10);  //初期化待機時間
+
+        //初期化コマンドを入力後の再検査
+        Ens160Sensor::Aht20Request::getReceve(&Wire,Ens160SensorAddress::TEMPERATURE_HUMIDITY,(uint8_t*)&initStatus,sizeof(initStatus));
+        if(initStatus != 1){
+          Serial.println("\t\t\tAHT sensor initlizing failed.\n Retrying...");
+          continue;
+        }
+        Serial.println("\t\t\tAHT sensor initlized");
+
+        //受信Test
+        
+
+      }
+
     }while();
   }
 
-  //COセンサの初期化
+  //CO2センサの初期化
   if(findi2cDevice){
     Serial.println("\tfind and initializing CO2 meter status: ");
     if(i2c.begin() == 0){
       Serial.println("\t\tCO2 meter started");
       i2c.setPWRMode(ENS160_STANDARD_MODE);
 
+      //初期化が完了するためのウォームアップ時間の確保
       Serial.println("\t\tCO2 meter wormup time: ");
       while(i2c.getENS160Status() != 0){
         if(i2c.getENS160Status() == 2){
