@@ -27,8 +27,8 @@
             TwoWire *wire;  //基本的に歯変更はないが、内部関数を利用することからconstはつけない
             const uint8_t address;
 
-            bool getReceve(uint8_t *data, uint8_t dataLength);
-            static bool getReceve(TwoWire *wire, uint8_t address, uint8_t *data, uint8_t dataLength);
+            bool getReceive(uint8_t *data, uint8_t dataLength);
+            static bool getReceive(TwoWire *wire, uint8_t address, uint8_t *data, uint8_t dataLength);
 
             bool getData(uint8_t *data, uint8_t dataLength);
             

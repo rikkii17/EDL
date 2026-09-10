@@ -20,7 +20,7 @@ DFRobot_ENS160_I2C i2c(&Wire,Ens160SensorAddress::CO2);
 Ens160Sensor::Aht20Request aht20Request{&Wire, Ens160SensorAddress::TEMPERATURE_HUMIDITY};
 
 void setup() {
-  bool findTempratureAndHumidityDevice = 0;
+  bool findTemperatureAndHumidityDevice = 0;
   bool findi2cDevice = 0;
 
   delay(5000);
@@ -34,7 +34,7 @@ void setup() {
   Serial.println("OK");
 
   //Wire通信環境の立ち上げ
-  Serial.print("\tStariting Wire: ");
+  Serial.print("\tstarting Wire: ");
   Wire.begin();
   Serial.println("OK");
   Serial.println("\tI2C pins scanning");
@@ -49,12 +49,12 @@ void setup() {
       Serial.print(checkAddress,HEX);
       Serial.println(")");
 
-      if(checkAddress == Ens160SensorAddress::TEMPERATURE_HUMIDITY) findTempratureAndHumidityDevice = true;
+      if(checkAddress == Ens160SensorAddress::TEMPERATURE_HUMIDITY) findTemperatureAndHumidityDevice = true;
       else if(checkAddress == Ens160SensorAddress::CO2)  findi2cDevice = true;
     }
   }
 
-  if(findTempratureAndHumidityDevice){
+  if(findTemperatureAndHumidityDevice){
     u_int16_t initStatus = 0;
 
     //温湿度センサの初期化
@@ -72,7 +72,7 @@ void setup() {
         continue;
       }
       //AHT20の初期化ステータスの取得
-      aht20Request.getReceve((uint8_t*)&initStatus,sizeof(initStatus));
+      aht20Request.getReceive((uint8_t*)&initStatus,sizeof(initStatus));
       if(initStatus != 1){
         //AHT20の初期化
         Serial.println("\tAHT sensor is not initlized");
@@ -88,7 +88,7 @@ void setup() {
         delay(10);  //初期化待機時間
 
         //初期化コマンドを入力後の再検査
-        aht20Request.getReceve((uint8_t*)&initStatus,sizeof(initStatus));
+        aht20Request.getReceive((uint8_t*)&initStatus,sizeof(initStatus));
         if(initStatus != 1){
           Serial.println("\t\t\tAHT sensor initlizing failed.\n Retrying...");
           continue;
