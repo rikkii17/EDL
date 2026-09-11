@@ -24,6 +24,9 @@
             static const uint8_t GET_DATA_PARAM2 = 0x00;
 
 
+            static const uint8_t CRC_POLYMONIAL = 0x31;
+
+
             TwoWire *wire;  //基本的に歯変更はないが、内部関数を利用することからconstはつけない
             const uint8_t address;
 
@@ -31,6 +34,8 @@
             static bool getReceive(TwoWire *wire, uint8_t address, uint8_t *data, uint8_t dataLength);
 
             bool getData(uint8_t *data, uint8_t dataLength);
+
+            bool verifyUsingCrc(uint8_t *data);
             
         };
         

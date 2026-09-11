@@ -26,6 +26,30 @@ bool Ens160Sensor::Aht20Request::getData(uint8_t *data, uint8_t dataLength){
     wire->write(Aht20Request::GET_DATA_PARAM2);
     if(wire->endTransmission() != 0)    return false;
 
-    //ここからデータ取得コードを書く
+    getReceive(data,dataLength);
 
+    //CRC検証
+
+
+}
+
+bool Ens160Sensor::Aht20Request::verifyUsingCrc(uint8_t *data){
+    uint8_t crc = 0xff; //リファレンスよりCRC初期値は0xFF
+
+    for(uint8_t i = 0; i<6;i++){
+        uint8_t checkByteData = data[i];
+        crc ^= checkByteData;
+
+        for(uint8_t n = 0; n < 8; n++){
+            if(crc & 0x80){ //最上位ビットの確認
+                crc <<= 1;
+                crc ^= CRC_POLYMONIAL;  //=0x31
+            }
+            else{
+                crc << 1;
+            }
+        }
+    }
+    if(crc == data[6])  return true;
+    else                return false;
 }

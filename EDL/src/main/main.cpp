@@ -58,9 +58,11 @@ void setup() {
     u_int16_t initStatus = 0;
 
     //温湿度センサの初期化
-    do{
+    while(true){
       //AHT20の操作関数の変数定義
       aht20Request.wire = &Wire;
+      uint8_t testData[7] = {0};
+
       Serial.print("\t find and initlizing temperature and humidity sensor: ");
       //本来であればこの後１００ms以上待機が必要だが、電源投入後十分な時間が経過しているためとりあえず待機なしで実行
       Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
@@ -96,11 +98,14 @@ void setup() {
         Serial.println("\t\t\tAHT sensor initlized");
 
         //受信Test
-        uint8_t testData[7] = {0};
-        
-
+        aht20Request.getReceive(testData, 7);
+        if(aht20Request.verifyUsingCrc(testData)) break;
+        else{
+          Serial.println("\t\tAHT20Sensor did not get Perfect data.\n\t\tRetry ...");
+          continue;
+        }
       }
-    }while();
+    }
   }
 
   //CO2センサの初期化
