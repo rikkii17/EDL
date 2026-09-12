@@ -63,7 +63,7 @@ void setup() {
       aht20Request.wire = &Wire;
       uint8_t testData[7] = {0};
 
-      Serial.print("\t find and initlizing temperature and humidity sensor: ");
+      Serial.print("\t find and initializing temperature and humidity sensor: ");
       //本来であればこの後１００ms以上待機が必要だが、電源投入後十分な時間が経過しているためとりあえず待機なしで実行
       Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
       //AHT20の初期化状態を取得する
@@ -77,14 +77,14 @@ void setup() {
       aht20Request.getReceive((uint8_t*)&initStatus,sizeof(initStatus));
       if(initStatus != 1){
         //AHT20の初期化
-        Serial.println("\tAHT sensor is not initlized");
-        Serial.println("\t\tinitlizing AHT sensor...");
+        Serial.println("\tAHT sensor is not INITIALIZEd");
+        Serial.println("\t\tinitializing AHT sensor...");
         Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
-        Wire.write(Ens160Sensor::Aht20Request::INITLIZE);
-        Wire.write(Ens160Sensor::Aht20Request::INITLIZE_PARAM1);
-        Wire.write(Ens160Sensor::Aht20Request::INITLIZE_PARAM2);
+        Wire.write(Ens160Sensor::Aht20Request::INITIALIZE);
+        Wire.write(Ens160Sensor::Aht20Request::INITIALIZE_PARAM1);
+        Wire.write(Ens160Sensor::Aht20Request::INITIALIZE_PARAM2);
         if(Wire.endTransmission() != 0){
-          Serial.println("\t\t\tCan not send initlize comand to temperature and humidity sensor.\n Retrying...");
+          Serial.println("\t\t\tCan not send initialize comand to temperature and humidity sensor.\n Retrying...");
           continue;
         }
         delay(10);  //初期化待機時間
@@ -92,10 +92,10 @@ void setup() {
         //初期化コマンドを入力後の再検査
         aht20Request.getReceive((uint8_t*)&initStatus,sizeof(initStatus));
         if(initStatus != 1){
-          Serial.println("\t\t\tAHT sensor initlizing failed.\n Retrying...");
+          Serial.println("\t\t\tAHT sensor initializing failed.\n Retrying...");
           continue;
         }
-        Serial.println("\t\t\tAHT sensor initlized");
+        Serial.println("\t\t\tAHT sensor INITIALIZEd");
 
         //受信Test
         aht20Request.getReceive(testData, 7);
@@ -116,7 +116,7 @@ void setup() {
       i2c.setPWRMode(ENS160_STANDARD_MODE);
 
       //初期化が完了するためのウォームアップ時間の確保
-      Serial.println("\t\tCO2 meter wormup time: ");
+      Serial.println("\t\tCO2 meter worm up time: ");
       while(i2c.getENS160Status() != 0){
         if(i2c.getENS160Status() == 2){
           Serial.println("\t\t\tsensor Note: Sensor is latest device.There is a possibility that the accuracy is poor.");

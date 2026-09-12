@@ -43,7 +43,7 @@ bool Ens160Sensor::Aht20Request::verifyUsingCrc(uint8_t *data){
         for(uint8_t n = 0; n < 8; n++){
             if(crc & 0x80){ //最上位ビットの確認
                 crc <<= 1;
-                crc ^= CRC_POLYMONIAL;  //=0x31
+                crc ^= CRC_POLYNOMIAL;  //=0x31
             }
             else{
                 crc << 1;
