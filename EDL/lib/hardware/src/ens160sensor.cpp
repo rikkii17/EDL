@@ -53,3 +53,5 @@ bool Ens160Sensor::Aht20Request::verifyUsingCrc(uint8_t *data){
     if(crc == data[6])  return true;
     else                return false;
 }
+
+static uint8_t makeI2cHeadData(uint8_t address,bool writeOrRead);

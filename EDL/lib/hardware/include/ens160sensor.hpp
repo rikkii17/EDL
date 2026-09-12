@@ -13,6 +13,8 @@
     public:
         class Aht20Request{
         public:
+            //コマンド系の定数宣言
+            //note: 若干定数のクラス設計ミスったかも。本来であればこの中にコマンドクラスでも作って格納した方がきれいだったか、、、
             static const uint8_t GET_DEVICE_STATUS = 0x71;
 
             static const uint8_t INITLIZE = 0xBE;
@@ -23,10 +25,10 @@
             static const uint8_t GET_DATA_PARAM1 = 0x33;
             static const uint8_t GET_DATA_PARAM2 = 0x00;
 
-
+            //CRCに関する定数宣言
             static const uint8_t CRC_POLYMONIAL = 0x31;
 
-
+            //インスタンス設計時の共通変数宣言
             TwoWire *wire;  //基本的に歯変更はないが、内部関数を利用することからconstはつけない
             const uint8_t address;
 
@@ -36,6 +38,8 @@
             bool getData(uint8_t *data, uint8_t dataLength);
 
             bool verifyUsingCrc(uint8_t *data);
+
+            static uint8_t makeI2cHeadData(uint8_t address,bool writeOrRead);
             
         };
         

@@ -139,9 +139,7 @@ void setup() {
 
 void loop() {
   //温度の取得
-  Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
-
-
+  
   //等価CO2濃度の取得
   uint16_t eco2 = i2c.getECO2();
 }
