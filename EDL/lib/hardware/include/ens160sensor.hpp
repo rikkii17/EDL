@@ -29,8 +29,8 @@
             static const uint8_t CRC_POLYNOMIAL = 0x31;
 
             //Head ByteのRead or Write をdefine定義
-            #define WRITE 0
-            #define READ 1
+            static const uint8_t WRITE = 0;
+            static const uint8_t READ = 1;
 
             //インスタンス設計時の共通変数宣言
             TwoWire *wire;  //基本的に歯変更はないが、内部関数を利用することからconstはつけない

@@ -80,6 +80,7 @@ void setup() {
         Serial.println("\tAHT sensor is not INITIALIZEd");
         Serial.println("\t\tinitializing AHT sensor...");
         Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
+        Wire.write(aht20Request.makeI2cHeadData(Ens160SensorAddress::TEMPERATURE_HUMIDITY,Ens160Sensor::Aht20Request::WRITE));
         Wire.write(Ens160Sensor::Aht20Request::INITIALIZE);
         Wire.write(Ens160Sensor::Aht20Request::INITIALIZE_PARAM1);
         Wire.write(Ens160Sensor::Aht20Request::INITIALIZE_PARAM2);
