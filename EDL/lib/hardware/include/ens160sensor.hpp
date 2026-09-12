@@ -43,7 +43,7 @@
 
             bool verifyUsingCrc(uint8_t *data);
 
-            static uint8_t makeI2cHeadData(uint8_t address,bool writeOrRead);
+            static uint8_t makeI2cHeadData(uint8_t address,bool readOrWrite);
             
         };
         
