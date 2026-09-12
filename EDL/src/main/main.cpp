@@ -135,12 +135,19 @@ void setup() {
   Serial.print("\ttest Interface:"); 
   outputInterFace.begin();
   Serial.println("OK");
-  Serial.println("-----Setting end-----");
+  Serial.println("-----Setting end-----\n\n\n\n\n");
 }
 
 void loop() {
-  //温度の取得
-  
+  uint8_t temperatureAndHumidity[7];
+  uint32_t temperatureData;
+  uint32_t humidityData;
+
+
+  //温度・湿度の取得
+  if(!aht20Request.getData(temperatureAndHumidity,7)) Serial.println("error:\tTemperature and humidity data did not get using AHT20sensor. ");
+  //temperatureAndHumidityをtemperatureとHumidityの二つに分割
+
   //等価CO2濃度の取得
   uint16_t eco2 = i2c.getECO2();
 }
