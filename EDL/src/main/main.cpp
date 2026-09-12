@@ -147,6 +147,7 @@ void loop() {
   //温度・湿度の取得
   if(!aht20Request.getData(temperatureAndHumidity,7)) Serial.println("error:\tTemperature and humidity data did not get using AHT20sensor. ");
   //temperatureAndHumidityをtemperatureとHumidityの二つに分割
+  
 
   //等価CO2濃度の取得
   uint16_t eco2 = i2c.getECO2();
