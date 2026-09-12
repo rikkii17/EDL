@@ -55,10 +55,17 @@ bool Ens160Sensor::Aht20Request::verifyUsingCrc(uint8_t *data){
     else                return false;
 }
 
-static uint8_t makeI2cHeadData(uint8_t address,bool ReadOrWrite){
+uint8_t makeI2cHeadData(uint8_t address,bool ReadOrWrite){
     uint8_t returnData = 0x00;
 
     returnData = (address << 1) | ReadOrWrite;
     
     return(returnData);
+}
+
+void divideTemperatureAndHumidityData(uint8_t *originalData,uint32_t *temperatureData,uint32_t *humidityData){
+    *humidityData =  (static_cast<uint32_t>(originalData[1]) << 12) | (static_cast<uint32_t>(originalData[2]) << 4) | (originalData[3]>>4);
+    *temperatureData = ((static_cast<uint32_t>(originalData[3]) & 0x0F) << 16) | (static_cast<u_int32_t>(originalData[4]) << 8) | originalData[5];
+
+    return;
 }

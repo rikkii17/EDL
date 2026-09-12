@@ -44,6 +44,8 @@
             bool verifyUsingCrc(uint8_t *data);
 
             static uint8_t makeI2cHeadData(uint8_t address,bool readOrWrite);
+
+            static void divideTemperatureAndHumidityData(uint8_t *originalData,uint32_t *temperatureData,uint32_t *humidityData);
             
         };
         
