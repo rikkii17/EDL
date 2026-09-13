@@ -33,6 +33,12 @@ void setup() {
   Serial.print("\t(Test) Starting Serial port: ");
   Serial.println("OK");
 
+  //マイクセンサ（騒音センサ）のテスト
+  Serial.print("\tTest noise sensor: ");
+  if(analogRead(NOISE_SENSOR_PATH)  != 0) Serial.println("OK");
+  else Serial.println("Noise sensor can not get data.");
+
+
   //Wire通信環境の立ち上げ
   Serial.print("\tstarting Wire: ");
   Wire.begin();
@@ -147,8 +153,10 @@ void loop() {
   //温度・湿度の取得
   if(!aht20Request.getData(temperatureAndHumidity,7)) Serial.println("error:\tTemperature and humidity data did not get using AHT20sensor. ");
   //temperatureAndHumidityをtemperatureとHumidityの二つに分割
-  
+  aht20Request.divideTemperatureAndHumidityData(temperatureAndHumidity,&temperatureData,&humidityData);
 
   //等価CO2濃度の取得
   uint16_t eco2 = i2c.getECO2();
+
+
 }

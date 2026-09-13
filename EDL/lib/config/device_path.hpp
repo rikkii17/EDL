@@ -4,6 +4,9 @@
 #include <Arduino.h>
 #include<Wire.h>
 
+//騒音センサのPath
+#define NOISE_SENSOR_PATH A0
+
 class Ens160SensorAddress{
 public:
     static const int8_t TEMPERATURE_HUMIDITY = 0x38; //温湿度センサのI2Cアドレス
