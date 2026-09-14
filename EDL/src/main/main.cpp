@@ -148,7 +148,9 @@ void loop() {
   uint8_t temperatureAndHumidity[7];
   uint32_t temperatureData;
   uint32_t humidityData;
-
+  uint16_t eco2;
+  float noiseVolume;
+  
 
   //温度・湿度の取得
   if(!aht20Request.getData(temperatureAndHumidity,7)) Serial.println("error:\tTemperature and humidity data did not get using AHT20sensor. ");
@@ -156,7 +158,12 @@ void loop() {
   aht20Request.divideTemperatureAndHumidityData(temperatureAndHumidity,&temperatureData,&humidityData);
 
   //等価CO2濃度の取得
-  uint16_t eco2 = i2c.getECO2();
+  eco2 = i2c.getECO2();
+
+  //騒音dataの取得
+  noiseVolume = AnalogReader::voltageToVolume(AnalogReader::convertToVoltage(analogRead(NOISE_SENSOR_PATH)));
+  
+
 
 
 }
