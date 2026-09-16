@@ -24,3 +24,13 @@ int Conversion::temperature(uint32_t data){
         data /= Evaluation_Unit::CO2;
         return(8 - std::abs(static_cast<int32_t>(data)));
     }
+
+    int overall(int temperature,int humidity,int eco2,int noise){
+        float returnData = (temperature + humidity + noise + eco2) / 4.0f;
+
+        if(returnData <= 2) return(1);
+        else if(returnData<= 4 && returnData < 2)   return(2);
+        else if(returnData <= 6 && returnData < 4)  return(3);
+        else if(returnData > 6) return(4);
+
+    }

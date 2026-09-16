@@ -8,6 +8,7 @@
 #include"pins_config.hpp"
 #include"device_path.hpp"
 #include"err.hpp"
+#include"conversion_data.hpp"
 
 #include "analog_device.hpp"
 #include"ens160sensor.hpp"
@@ -145,24 +146,51 @@ void setup() {
 }
 
 void loop() {
-  uint8_t temperatureAndHumidity[7];
-  uint32_t temperatureData;
-  uint32_t humidityData;
-  uint16_t eco2;
-  float noiseVolume;
+  int evaluationTemperature;
+  int evaluationHumidity;
+  int evaluationEco2;
+  int evaluationNoise;
+  int evaluationOverall;
   
-
-  //温度・湿度の取得
-  if(!aht20Request.getData(temperatureAndHumidity,7)) Serial.println("error:\tTemperature and humidity data did not get using AHT20sensor. ");
-  //temperatureAndHumidityをtemperatureとHumidityの二つに分割
-  aht20Request.divideTemperatureAndHumidityData(temperatureAndHumidity,&temperatureData,&humidityData);
-
-  //等価CO2濃度の取得
-  eco2 = i2c.getECO2();
-
-  //騒音dataの取得
-  noiseVolume = AnalogReader::voltageToVolume(AnalogReader::convertToVoltage(analogRead(NOISE_SENSOR_PATH)));
+  {
+    uint32_t temperatureData;
+    uint32_t humidityData;
+    uint16_t eco2;
+    float noiseVolume;
   
+    {
+      uint8_t temperatureAndHumidity[7];
+      //温度・湿度の取得
+      if(!aht20Request.getData(temperatureAndHumidity,7)) Serial.println("error:\tTemperature and humidity data did not get using AHT20sensor. ");
+      //temperatureAndHumidityをtemperatureとHumidityの二つに分割
+      aht20Request.divideTemperatureAndHumidityData(temperatureAndHumidity,&temperatureData,&humidityData);
+    }
+
+    //等価CO2濃度の取得
+    eco2 = i2c.getECO2();
+
+    //騒音dataの取得
+    noiseVolume = AnalogReader::voltageToVolume(AnalogReader::convertToVoltage(analogRead(NOISE_SENSOR_PATH)));
+
+    //それぞれのデータを数値評価
+    evaluationTemperature = Conversion::temperature(temperatureData);
+    evaluationHumidity = Conversion::humidity(humidityData);
+    evaluationEco2 = Conversion::co2(eco2);
+    evaluationNoise = Conversion::noise(noiseVolume);
+    evaluationOverall = Conversion::overall(evaluationTemperature,evaluationHumidity,evaluationEco2,evaluationNoise);
+  }
+
+
+  //それぞれのデータの数値評価を表示
+  outputInterFace.outputNumberOfBus(IndexSelector::TEMPERATURE,evaluationTemperature);
+  outputInterFace.outputNumberOfBus(IndexSelector::HUMIDITY,evaluationHumidity);
+  outputInterFace.outputNumberOfBus(IndexSelector::CO2,evaluationEco2);
+  outputInterFace.outputNumberOfBus(IndexSelector::NOISE,evaluationNoise);
+  outputInterFace.outputNumberOfBus(IndexSelector::OVERALL,evaluationOverall);
+
+
+
+
 
 
 

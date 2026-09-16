@@ -26,6 +26,7 @@
         static int humidity(uint32_t data);
         static int noise(float data);
         static int co2(uint16_t data);
+        static int overall(int temperature,int humidity,int eco2,int noise);
 
     };
 
