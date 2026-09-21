@@ -6,7 +6,6 @@ int Conversion::temperature(uint32_t data){
         return(8 - std::abs(static_cast<int32_t>(data)));
 }
 
-
 int Conversion::humidity(uint32_t data){
     data -= ReferenceValue::HUMIDITY;
     data /= Evaluation_Unit::HUMIDITY;
@@ -25,7 +24,7 @@ int Conversion::co2(uint16_t data){
     return(8 - std::abs(static_cast<int32_t>(data)));
 }
 
-int overall(int temperature,int humidity,int eco2,int noise){
+int Conversion::overall(int temperature,int humidity,int eco2,int noise){
     float returnData = (temperature + humidity + noise + eco2) / 4.0f;
 
     if(returnData <= 2) return(1);
@@ -34,4 +33,4 @@ int overall(int temperature,int humidity,int eco2,int noise){
     else if(returnData > 6) return(4);
     else    return(0);
 
-    }
+}

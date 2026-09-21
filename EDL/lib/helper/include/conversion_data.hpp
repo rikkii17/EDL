@@ -9,7 +9,7 @@
     class Evaluation_Unit{
     public:
         static constexpr int TEMPERATURE = 2;
-        static constexpr int HUMIDITY = 6;  //性格には6.25
+        static constexpr int HUMIDITY = 6;  //正確には6.25
         static constexpr int NOISE = 5;
         static constexpr int CO2 = 575;
     };
