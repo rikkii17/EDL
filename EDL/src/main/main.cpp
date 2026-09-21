@@ -187,11 +187,4 @@ void loop() {
   outputInterFace.outputNumberOfBus(IndexSelector::CO2,evaluationEco2);
   outputInterFace.outputNumberOfBus(IndexSelector::NOISE,evaluationNoise);
   outputInterFace.outputNumberOfBus(IndexSelector::OVERALL,evaluationOverall);
-
-
-
-
-
-
-
 }

@@ -3,7 +3,7 @@
 
     class speakerConst{
     public:
-        static const float boardGain = 1;
+        static constexpr float boardGain = 1;
     };
 
 #endif //SPEAKER_CONST_HPP
