@@ -71,3 +71,11 @@ void Ens160Sensor::Aht20Request::divideTemperatureAndHumidityData(uint8_t *origi
 
     return;
 }
+
+float Ens160Sensor::Aht20Request::temperatureConvertTofloat(uint32_t originalData){
+    return (static_cast<float>(originalData) / 1048576.0f * 200.0f - 50.0f);
+}
+
+float Ens160Sensor::Aht20Request::humidityConvertTofloat(uint32_t originalData){
+    return (static_cast<float>(originalData) / 1048576.0f * 100.0f);
+}

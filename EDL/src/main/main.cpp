@@ -250,17 +250,23 @@ void loop() {
   int evaluationOverall;
   
   {
-    uint32_t temperatureData;
+    float temperatureData;
     uint32_t humidityData;
     uint16_t eco2;
     float noiseVolume;
   
     {
       uint8_t temperatureAndHumidity[7];
+      u_int32_t temperatureOriginalData;
+      u_int32_t humidityOriginalData;
       //温度・湿度の取得
       if(!aht20Request.getData(temperatureAndHumidity,7)) Serial.println("error:\tTemperature and humidity data did not get using AHT20sensor. ");
       //temperatureAndHumidityをtemperatureとHumidityの二つに分割
-      aht20Request.divideTemperatureAndHumidityData(temperatureAndHumidity,&temperatureData,&humidityData);
+      aht20Request.divideTemperatureAndHumidityData(temperatureAndHumidity,&temperatureOriginalData,&humidityOriginalData);
+      //温度データをfloat型に変換
+      temperatureData = aht20Request.temperatureConvertTofloat(temperatureOriginalData);
+      //湿度データをfloat型に変換
+      humidityData = aht20Request.humidityConvertTofloat(humidityOriginalData);
     }
 
     //等価CO2濃度の取得
@@ -275,6 +281,29 @@ void loop() {
     evaluationEco2 = Conversion::co2(eco2);
     evaluationNoise = Conversion::noise(noiseVolume);
     evaluationOverall = Conversion::overall(evaluationTemperature,evaluationHumidity,evaluationEco2,evaluationNoise);
+
+    //test
+    Serial.println("-----Data output-----");
+    Serial.print("Temperature:\t");
+    Serial.print(temperatureData);
+    Serial.print("\tEvaluation:\t");
+    Serial.println(evaluationTemperature);
+    Serial.print("Humidity:\t");
+    Serial.print(humidityData);
+    Serial.print("\tEvaluation:\t");
+    Serial.println(evaluationHumidity);
+    Serial.print("eCO2:\t");
+    Serial.print(eco2);
+    Serial.print("\tEvaluation:\t");
+    Serial.println(evaluationEco2);
+    Serial.print("Noise:\t");
+    Serial.print(noiseVolume);
+    Serial.print("\tEvaluation:\t");
+    Serial.println(evaluationNoise);
+    Serial.print("Overall Evaluation:\t");
+    Serial.println(evaluationOverall);
+    delay(10000);
+    
   }
 
 

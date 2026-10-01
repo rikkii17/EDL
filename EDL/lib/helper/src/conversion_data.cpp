@@ -13,9 +13,13 @@ int Conversion::humidity(uint32_t data){
 }
     
 int Conversion::noise(float data){
+    int returnData;
     data -= ReferenceValue::NOISE;
     data /= Evaluation_Unit::NOISE;
-    return(8 - std::round(data));
+    returnData = 8 - std::round(data);
+    if(returnData < 0) return(1);   
+    else if(returnData > 8) return(8);
+    else return(returnData);
 }
 
 int Conversion::co2(uint16_t data){
@@ -28,8 +32,8 @@ int Conversion::overall(int temperature,int humidity,int eco2,int noise){
     float returnData = (temperature + humidity + noise + eco2) / 4.0f;
 
     if(returnData <= 2) return(1);
-    else if(returnData<= 4 && returnData < 2)   return(2);
-    else if(returnData <= 6 && returnData < 4)  return(3);
+    else if(returnData<= 4 && returnData > 2)   return(2);
+    else if(returnData <= 6 && returnData > 4)  return(3);
     else if(returnData > 6) return(4);
     else    return(0);
 
