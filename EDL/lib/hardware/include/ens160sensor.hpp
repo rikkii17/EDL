@@ -17,6 +17,7 @@
             //note: 若干定数のクラス設計ミスったかも。本来であればこの中にコマンドクラスでも作って格納した方がきれいだったか、、、
             static const uint8_t GET_DEVICE_STATUS = 0x71;
 
+            static const uint8_t SOFT_RESET = 0xBA;
             static const uint8_t INITIALIZE = 0xBE;
             static const uint8_t INITIALIZE_PARAM1 = 0x08;
             static const uint8_t INITIALIZE_PARAM2 = 0x00;

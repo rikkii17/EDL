@@ -1,75 +1,47 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <DFRobot_ENS160.h>
-#include<cpp_helper.hpp>
+#include <Adafruit_AHTX0.h>
 
-#include"interface_main.hpp"
-#include"pins_config.hpp"
-#include"err.hpp"
+Adafruit_AHTX0 aht;
 
-InterFace outputInterFace;
-
-
-void setup(){
+void setup()
+{
     Serial.begin(9600);
-    delay(5000);
-    Serial.println("Test");
-    Serial.print("\ttest Interface:"); 
-    outputInterFace.begin();
-    Serial.println("\tOK");
+    Wire.begin();
 
+    delay(1000);
+
+    Serial.println("AHT20 test start");
+
+    if (!aht.begin(&Wire))
+    {
+        Serial.println("AHT20 initialization FAILED");
+
+        while (true)
+        {
+            delay(1000);
+        }
+    }
+
+    Serial.println("AHT20 initialization SUCCESS");
 }
 
-void loop(){
-    InterFace outputInterFace;
-    String inputIndex;
-    int indexBus;
-    String inputValue;
-    int valueBus;
-    while(true){
-    Serial.println("Prease Write the Index:");
-    while(Serial.available() == 0)  delay(100);
-    if(Serial.available()>0)    inputIndex = Serial.readStringUntil('\n');
+void loop()
+{
+    sensors_event_t humidity;
+    sensors_event_t temperature;
 
-    if(inputIndex == "温度")        indexBus = IndexSelector::TEMPERATURE;
-    else if(inputIndex == "湿度")   indexBus = IndexSelector::HUMIDITY;
-    else if(inputIndex == "CO2")    indexBus = IndexSelector::CO2;
-    else if(inputIndex == "騒音")   indexBus = IndexSelector::NOISE;
-    else if(inputIndex == "総合")   indexBus = IndexSelector::OVERALL;
-    else{
-        Serial.println("Input err");
-        continue;
-    }
-    break;
-    }
-    while (true){
-    Serial.println("Prease Write the Value:");
-    while(Serial.available() == 0)  
-    if(Serial.available()>0)    inputValue = Serial.readStringUntil('\n');
+    aht.getEvent(&humidity, &temperature);
 
-    if(!TypeConverter::checkTypeToInt(inputValue.c_str())){
-        Serial.println("Input err");
-        continue;
-    }
-    valueBus = inputValue.toInt();
-    Serial.println(valueBus);
-    if(valueBus >= 8 || valueBus <= 0){
-        Serial.println("Input err");
-        continue;
-    }
+    Serial.print("Temperature: ");
+    Serial.print(temperature.temperature);
+    Serial.println(" degC");
 
-    break;
-    }
+    Serial.print("Humidity: ");
+    Serial.print(humidity.relative_humidity);
+    Serial.println(" %");
 
-    Serial.println("test output");
+    Serial.println("--------------------");
 
-    if((valueBus >> 0) & 1)    Serial.println("BIT0");
-    if((valueBus >> 1) & 1)    Serial.println("BIT1");
-    if((valueBus >> 2) & 1)    Serial.println("BIT2");
-
-    ErrCode::checkErr(outputInterFace.outputNumberOfBus(indexBus,valueBus),&Serial);
-    delay(100000);
-   delay(100000);
-    
-
+    delay(3000);
 }

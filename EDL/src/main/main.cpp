@@ -23,6 +23,7 @@ Ens160Sensor::Aht20Request aht20Request{&Wire, Ens160SensorAddress::TEMPERATURE_
 void setup() {
   bool findTemperatureAndHumidityDevice = 0;
   bool findi2cDevice = 0;
+  uint8_t retryCount = 0;
 
   delay(5000);
   //Serial通信環境の立ち上げ
@@ -50,6 +51,14 @@ void setup() {
   for(int checkAddress = 1;checkAddress < 127;checkAddress++){
     Wire.beginTransmission(checkAddress);
     bool error = Wire.endTransmission();
+
+    //test
+    Serial.print("Scanning:0x");
+    if(checkAddress < 16) Serial.print("0");
+    Serial.println(checkAddress,HEX);
+    //enf of test
+
+
     if(error == 0){
       Serial.print("\t\tI2C device find (address 0x");
       if(checkAddress < 16) Serial.print("0");
@@ -69,8 +78,15 @@ void setup() {
       //AHT20の操作関数の変数定義
       aht20Request.wire = &Wire;
       uint8_t testData[7] = {0};
+      uint8_t transmissionStatus = 0;
 
       Serial.print("\t find and initializing temperature and humidity sensor: ");
+      
+      //初期化をするはずだったが、多分いらないっぽい。
+      /*Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
+      Wire.write(Ens160Sensor::Aht20Request::SOFT_RESET);
+      Wire.endTransmission();*/
+
       //本来であればこの後１００ms以上待機が必要だが、電源投入後十分な時間が経過しているためとりあえず待機なしで実行
       Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
       //AHT20の初期化状態を取得する
@@ -82,36 +98,117 @@ void setup() {
       }
       //AHT20の初期化ステータスの取得
       aht20Request.getReceive((uint8_t*)&initStatus,sizeof(initStatus));
-      if(initStatus != 1){
+      
+      //test
+      Serial.println(initStatus);
+      if((initStatus & 0x08) == 0){
         //AHT20の初期化
-        Serial.println("\tAHT sensor is not INITIALIZEd");
+        Serial.println("\tAHT sensor is not initalized");
         Serial.println("\t\tinitializing AHT sensor...");
         Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
-        Wire.write(aht20Request.makeI2cHeadData(Ens160SensorAddress::TEMPERATURE_HUMIDITY,Ens160Sensor::Aht20Request::WRITE));
+        //このコードいらないはずなのに書いていたので送信エラーを起こしていたらしい。（Beginで送信済みらしい）
+        //Wire.write(aht20Request.makeI2cHeadData(Ens160SensorAddress::TEMPERATURE_HUMIDITY,Ens160Sensor::Aht20Request::WRITE));
         Wire.write(Ens160Sensor::Aht20Request::INITIALIZE);
         Wire.write(Ens160Sensor::Aht20Request::INITIALIZE_PARAM1);
         Wire.write(Ens160Sensor::Aht20Request::INITIALIZE_PARAM2);
-        if(Wire.endTransmission() != 0){
-          Serial.println("\t\t\tCan not send initialize comand to temperature and humidity sensor.\n Retrying...");
+        
+        transmissionStatus = Wire.endTransmission();
+        if(transmissionStatus == 0) Serial.println("\t\t\tSend initialize comand to temperature and humidity sensor.");
+        else if(transmissionStatus == 1)  Serial.println("\t\t\terror 1:\tData cannot subside.");
+        else if(transmissionStatus == 2)  Serial.println("\t\t\terror 2:\tNACK,When address sending.");
+        else if(transmissionStatus == 3)  Serial.println("\t\t\terror 3:\tNACK,When data sending.");
+        else if(transmissionStatus == 4)  Serial.println("\t\t\terror 4:\tInternal error.");
+        else if(transmissionStatus == 5)  Serial.println("\t\t\terror 5:\tSystem is timeout.");
+
+        if(transmissionStatus != 0 && retryCount < 3){
+          retryCount++;
+          Serial.println("Retrying...");
           continue;
+        }
+        else if(transmissionStatus != 0 && retryCount >= 3){
+          Serial.println("It's not going well.Run despite error.");
+          break;
         }
         delay(10);  //初期化待機時間
 
         //初期化コマンドを入力後の再検査
+        Serial.println(initStatus);
         aht20Request.getReceive((uint8_t*)&initStatus,sizeof(initStatus));
-        if(initStatus != 1){
+
+        retryCount = 0;
+        if(initStatus != 1 && retryCount < 3){
           Serial.println("\t\t\tAHT sensor initializing failed.\n Retrying...");
+          retryCount++;
+          Serial.println(retryCount);
           continue;
         }
-        Serial.println("\t\t\tAHT sensor INITIALIZEd");
+        else if(initStatus != 1 && retryCount >= 3){
+          Serial.println("It's not going well.Run despite error.");
+          break;
+        }
 
-        //受信Test
+        Serial.println("\t\t\tAHT sensor initialized");
+
+        //受信Test    
+        Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
+        Wire.write(aht20Request.GET_DATA);
+        Wire.write(aht20Request.GET_DATA_PARAM1);
+        Wire.write(aht20Request.GET_DATA_PARAM2);
+        if(Wire.endTransmission() != 0) Serial.println("Can not send comand to temperature and humidity sensor.\n Retrying...");
+        
+        delay(80);  //データが返ってくるまでの待機時間
         aht20Request.getReceive(testData, 7);
         if(aht20Request.verifyUsingCrc(testData)) break;
         else{
-          Serial.println("\t\tAHT20Sensor did not get Perfect data.\n\t\tRetry ...");
+          Serial.println("\t\tAHT20Sensor did not get Perfect data.");
+          if (retryCount < 3){
+            retryCount++;
+            Serial.println("Retry...");
+            continue;
+          }
+          else{
+            Serial.println("It's not going well.Run despite error.");
+            break;
+          }
+        }
+      }
+      else{
+        Serial.println("AHT sensor initialized.");
+        delay(100);  //testwait
+        //受信Test
+        while(true){
+        Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
+        Wire.write(aht20Request.GET_DATA);
+        Wire.write(aht20Request.GET_DATA_PARAM1);
+        Wire.write(aht20Request.GET_DATA_PARAM2);
+        if(Wire.endTransmission() != 0) Serial.println("Can not send comand to temperature and humidity sensor.\n Retrying...");
+        delay(80);  //データが返ってくるまでの待機時間
+        aht20Request.getReceive(testData, 7);
+        //test
+        for(int n = 0;n < 7;n++){
+          Serial.println(testData[n]);
+        }
+        if(testData[0] & 0x80){
+          Serial.println("Sensor flag is busy.Retry...");
+          delay(3000);
           continue;
         }
+
+        if(aht20Request.verifyUsingCrc(testData)) break;
+        else{
+          Serial.println("\t\tAHT20Sensor did not get Perfect data.");
+          if (retryCount < 3){
+            retryCount++;
+            Serial.println("Retry...");
+            continue;
+          }
+          else{
+            Serial.println("It's not going well.Run despite error.");
+            break;
+          }
+        }
+        }
+        break;
       }
     }
   }

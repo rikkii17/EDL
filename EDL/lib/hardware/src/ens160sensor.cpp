@@ -21,12 +21,14 @@ bool getReceive(TwoWire *wire, uint8_t address, uint8_t *data, uint8_t dataLengt
 bool Ens160Sensor::Aht20Request::getData(uint8_t *data, uint8_t dataLength){
     //データを送るためのコマンドの送信
     wire->beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
-    wire->write(Ens160Sensor::Aht20Request::makeI2cHeadData(Ens160SensorAddress::TEMPERATURE_HUMIDITY,Ens160Sensor::Aht20Request::READ));
+    //ここいらないらしい
+    //wire->write(Ens160Sensor::Aht20Request::makeI2cHeadData(Ens160SensorAddress::TEMPERATURE_HUMIDITY,Ens160Sensor::Aht20Request::READ));
     wire->write(Aht20Request::GET_DATA);
     wire->write(Aht20Request::GET_DATA_PARAM1);
     wire->write(Aht20Request::GET_DATA_PARAM2);
     if(wire->endTransmission() != 0)    return false;
 
+    delay(80);  //データが返ってくるまでの待機時間
     getReceive(data,dataLength);
 
     //CRC検証
@@ -47,7 +49,7 @@ bool Ens160Sensor::Aht20Request::verifyUsingCrc(uint8_t *data){
                 crc ^= CRC_POLYNOMIAL;  //=0x31
             }
             else{
-                crc << 1;
+                crc <<= 1;
             }
         }
     }
@@ -65,7 +67,7 @@ uint8_t Ens160Sensor::Aht20Request::makeI2cHeadData(uint8_t address,bool ReadOrW
 
 void Ens160Sensor::Aht20Request::divideTemperatureAndHumidityData(uint8_t *originalData,uint32_t *temperatureData,uint32_t *humidityData){
     *humidityData =  (static_cast<uint32_t>(originalData[1]) << 12) | (static_cast<uint32_t>(originalData[2]) << 4) | (originalData[3]>>4);
-    *temperatureData = ((static_cast<uint32_t>(originalData[3]) & 0x0F) << 16) | (static_cast<u_int32_t>(originalData[4]) << 8) | originalData[5];
+    *temperatureData = ((static_cast<uint32_t>(originalData[3]) & 0x0F) << 16) | (static_cast<uint32_t>(originalData[4]) << 8) | originalData[5];
 
     return;
 }
