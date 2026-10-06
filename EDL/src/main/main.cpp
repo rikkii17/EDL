@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include <cmath>
+#include "telemetry.hpp"
 #include<DFRobot_ENS160.h>
 #include<Wire.h>
 #include<cpp_helper.hpp>
@@ -16,6 +18,8 @@
 
 
 InterFace outputInterFace;
+Telemetry telemetry;
+bool eco2Initialized = false;
 DFRobot_ENS160_I2C i2c(&Wire,Ens160SensorAddress::CO2);
 
 Ens160Sensor::Aht20Request aht20Request{&Wire, Ens160SensorAddress::TEMPERATURE_HUMIDITY};
@@ -71,10 +75,11 @@ void setup() {
   }
 
   if(findTemperatureAndHumidityDevice){
-    u_int16_t initStatus = 0;
+    uint8_t initStatus = 0; // AHT20の状態値は1バイト。
 
     //温湿度センサの初期化
-    while(true){
+    // センサーの未接続や故障で初期化が無限に続かないよう回数を制限する。
+    for (uint8_t setupAttempt = 0; setupAttempt < 3; ++setupAttempt){
       //AHT20の操作関数の変数定義
       aht20Request.wire = &Wire;
       uint8_t testData[7] = {0};
@@ -136,13 +141,13 @@ void setup() {
         aht20Request.getReceive((uint8_t*)&initStatus,sizeof(initStatus));
 
         retryCount = 0;
-        if(initStatus != 1 && retryCount < 3){
+        if((initStatus & 0x08) == 0 && retryCount < 3){
           Serial.println("\t\t\tAHT sensor initializing failed.\n Retrying...");
           retryCount++;
           Serial.println(retryCount);
           continue;
         }
-        else if(initStatus != 1 && retryCount >= 3){
+        else if((initStatus & 0x08) == 0 && retryCount >= 3){
           Serial.println("It's not going well.Run despite error.");
           break;
         }
@@ -176,7 +181,7 @@ void setup() {
         Serial.println("AHT sensor initialized.");
         delay(100);  //testwait
         //受信Test
-        while(true){
+        for (uint8_t readAttempt = 0; readAttempt < 3; ++readAttempt){
         Wire.beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
         Wire.write(aht20Request.GET_DATA);
         Wire.write(aht20Request.GET_DATA_PARAM1);
@@ -217,12 +222,14 @@ void setup() {
   if(findi2cDevice){
     Serial.println("\tfind and initializing CO2 meter status: ");
     if(i2c.begin() == 0){
+      eco2Initialized = true;
       Serial.println("\t\tCO2 meter started");
       i2c.setPWRMode(ENS160_STANDARD_MODE);
 
       //初期化が完了するためのウォームアップ時間の確保
       Serial.println("\t\tCO2 meter worm up time: ");
-      while(i2c.getENS160Status() != 0){
+      // 既存の暖機待ちに上限を設け、正常になるまで測定値は欠測として扱う。
+      for(uint16_t warmupCheck = 0; warmupCheck < 600 && i2c.getENS160Status() != 0; ++warmupCheck){
         if(i2c.getENS160Status() == 2){
           Serial.println("\t\t\tsensor Note: Sensor is latest device.There is a possibility that the accuracy is poor.");
           break;
@@ -240,6 +247,8 @@ void setup() {
   outputInterFace.begin();
   Serial.println("OK");
   Serial.println("-----Setting end-----\n\n\n\n\n");
+  analogReadResolution(10); // 既存の電圧換算に合わせてADCを0〜1023にする。
+  telemetry.begin();
 }
 
 void loop() {
@@ -248,39 +257,55 @@ void loop() {
   int evaluationEco2;
   int evaluationNoise;
   int evaluationOverall;
+  Measurement measurement;
+  measurement.uptime = millis();
   
   {
-    float temperatureData;
-    uint32_t humidityData;
-    uint16_t eco2;
+    float temperatureData = NAN;
+    float humidityData = NAN;
+    uint16_t eco2 = 0;
     float noiseVolume;
   
     {
-      uint8_t temperatureAndHumidity[7];
+      uint8_t temperatureAndHumidity[7] = {};
       u_int32_t temperatureOriginalData;
       u_int32_t humidityOriginalData;
       //温度・湿度の取得
-      if(!aht20Request.getData(temperatureAndHumidity,7)) Serial.println("error:\tTemperature and humidity data did not get using AHT20sensor. ");
+      bool validTemperatureHumidity = aht20Request.getData(temperatureAndHumidity,7);
+      if(!validTemperatureHumidity) Serial.println("error:\tTemperature and humidity data did not get using AHT20sensor. ");
+      // 受信不足やCRC不一致のデータは温湿度へ変換しない。
+      if(validTemperatureHumidity){
       //temperatureAndHumidityをtemperatureとHumidityの二つに分割
       aht20Request.divideTemperatureAndHumidityData(temperatureAndHumidity,&temperatureOriginalData,&humidityOriginalData);
       //温度データをfloat型に変換
       temperatureData = aht20Request.temperatureConvertTofloat(temperatureOriginalData);
       //湿度データをfloat型に変換
       humidityData = aht20Request.humidityConvertTofloat(humidityOriginalData);
+      }
+      measurement.temperature = temperatureData;
+      measurement.humidity = humidityData;
+      measurement.temperatureValid = std::isfinite(temperatureData) && temperatureData >= -40 && temperatureData <= 125;
+      measurement.humidityValid = std::isfinite(humidityData) && humidityData >= 0 && humidityData <= 100;
     }
 
     //等価CO2濃度の取得
-    eco2 = i2c.getECO2();
+    // ライブラリの取得関数は受信不足を報告しないため、状態と2バイトの受信を確認する。
+    measurement.eco2Valid = eco2Initialized && Ens160Sensor::readCheckedEco2(&Wire, Ens160SensorAddress::CO2, &eco2);
+    measurement.eco2 = eco2;
 
     //騒音dataの取得
-    noiseVolume = AnalogReader::voltageToVolume(AnalogReader::convertToVoltage(analogRead(NOISE_SENSOR_PATH)));
+    int rawNoise = analogRead(NOISE_SENSOR_PATH);
+    noiseVolume = AnalogReader::voltageToVolume(AnalogReader::convertToVoltage(rawNoise));
+    measurement.noise = noiseVolume;
+    measurement.noiseValid = rawNoise > 0 && rawNoise < 1023 && std::isfinite(noiseVolume) && noiseVolume >= 0 && noiseVolume <= 150;
 
     //それぞれのデータを数値評価
-    evaluationTemperature = Conversion::temperature(temperatureData);
-    evaluationHumidity = Conversion::humidity(humidityData);
-    evaluationEco2 = Conversion::co2(eco2);
-    evaluationNoise = Conversion::noise(noiseVolume);
-    evaluationOverall = Conversion::overall(evaluationTemperature,evaluationHumidity,evaluationEco2,evaluationNoise);
+    evaluationTemperature = measurement.temperatureValid ? Conversion::temperature(temperatureData) : 0;
+    evaluationHumidity = measurement.humidityValid ? Conversion::humidity(humidityData) : 0;
+    evaluationEco2 = measurement.eco2Valid ? Conversion::co2(eco2) : 0;
+    evaluationNoise = measurement.noiseValid ? Conversion::noise(noiseVolume) : 0;
+    evaluationOverall = evaluationTemperature && evaluationHumidity && evaluationEco2 && evaluationNoise
+      ? Conversion::overall(evaluationTemperature,evaluationHumidity,evaluationEco2,evaluationNoise) : 0;
 
     //test
     Serial.println("-----Data output-----");
@@ -313,4 +338,6 @@ void loop() {
   outputInterFace.outputNumberOfBus(IndexSelector::CO2,evaluationEco2);
   outputInterFace.outputNumberOfBus(IndexSelector::NOISE,evaluationNoise);
   outputInterFace.outputNumberOfBus(IndexSelector::OVERALL,evaluationOverall);
+  // 通信に失敗しても既存のローカル表示は実行済みとなるよう、最後に送信する。
+  telemetry.publish(measurement);
 }

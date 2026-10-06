@@ -29,6 +29,7 @@ int InterFace::begin(){
     InterFace::testOutput(IndexSelector::NOISE);
     InterFace::testOutput(IndexSelector::CO2);
     InterFace::testOutput(IndexSelector::OVERALL);
+    return ErrCode::OK;
 
 }
 

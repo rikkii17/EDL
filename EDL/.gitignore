@@ -3,3 +3,6 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+
+# Hotspot credentials and API key must never enter Git.
+network_config.local.hpp

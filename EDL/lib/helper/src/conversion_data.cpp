@@ -1,31 +1,27 @@
 #include"conversion_data.hpp"
 
-int Conversion::temperature(uint32_t data){
-        data -= ReferenceValue::TEMPERATURE;
-        data /= Evaluation_Unit::TEMPERATURE;
-        return(8 - std::abs(static_cast<int32_t>(data)));
+namespace {
+// 符号付きの小数計算で基準値未満の桁あふれを防ぐ。0は欠測を示す。
+int score(float deviation) {
+    if (!std::isfinite(deviation)) return 0;
+    int result = 8 - static_cast<int>(std::floor(deviation));
+    return result < 1 ? 1 : (result > 8 ? 8 : result);
 }
-
-int Conversion::humidity(uint32_t data){
-    data -= ReferenceValue::HUMIDITY;
-    data /= Evaluation_Unit::HUMIDITY;
-    return(8 - std::abs(static_cast<int32_t>(data)));
 }
-    
-int Conversion::noise(float data){
-    int returnData;
-    data -= ReferenceValue::NOISE;
-    data /= Evaluation_Unit::NOISE;
-    returnData = 8 - std::round(data);
-    if(returnData < 0) return(1);   
-    else if(returnData > 8) return(8);
-    else return(returnData);
+int Conversion::temperature(float data) {
+    return score(std::fabs(data - ReferenceValue::TEMPERATURE) / Evaluation_Unit::TEMPERATURE);
 }
-
-int Conversion::co2(uint16_t data){
-    data -= ReferenceValue::CO2;
-    data /= Evaluation_Unit::CO2;
-    return(8 - std::abs(static_cast<int32_t>(data)));
+int Conversion::humidity(float data) {
+    return score(std::fabs(data - ReferenceValue::HUMIDITY) / Evaluation_Unit::HUMIDITY);
+}
+int Conversion::noise(float data) {
+    // 既存のマイク評価の丸めしきい値を保ち、最後に表示範囲へ制限する。
+    if (!std::isfinite(data)) return 0;
+    int result = 8 - static_cast<int>(std::round((data - ReferenceValue::NOISE) / Evaluation_Unit::NOISE));
+    return result < 1 ? 1 : (result > 8 ? 8 : result);
+}
+int Conversion::co2(uint16_t data) {
+    return score(std::fmax(0.0f, static_cast<float>(data) - ReferenceValue::CO2) / Evaluation_Unit::CO2);
 }
 
 int Conversion::overall(int temperature,int humidity,int eco2,int noise){

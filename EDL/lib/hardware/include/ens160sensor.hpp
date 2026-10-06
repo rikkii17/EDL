@@ -11,6 +11,7 @@
 
     class Ens160Sensor{
     public:
+        static bool readCheckedEco2(TwoWire *wire, uint8_t address, uint16_t *value);
         class Aht20Request{
         public:
             //コマンド系の定数宣言

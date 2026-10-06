@@ -9,7 +9,7 @@ bool Ens160Sensor::Aht20Request::getReceive(uint8_t *data, uint8_t dataLength){
     return true;
 }
 
-bool getReceive(TwoWire *wire, uint8_t address, uint8_t *data, uint8_t dataLength){
+bool Ens160Sensor::Aht20Request::getReceive(TwoWire *wire, uint8_t address, uint8_t *data, uint8_t dataLength){
     if(wire->requestFrom(address, dataLength) != dataLength)    return false;
     
     for(int8_t i = 0;i < dataLength;i++){
@@ -19,20 +19,16 @@ bool getReceive(TwoWire *wire, uint8_t address, uint8_t *data, uint8_t dataLengt
 }
 
 bool Ens160Sensor::Aht20Request::getData(uint8_t *data, uint8_t dataLength){
-    //データを送るためのコマンドの送信
-    wire->beginTransmission(Ens160SensorAddress::TEMPERATURE_HUMIDITY);
-    //ここいらないらしい
-    //wire->write(Ens160Sensor::Aht20Request::makeI2cHeadData(Ens160SensorAddress::TEMPERATURE_HUMIDITY,Ens160Sensor::Aht20Request::READ));
-    wire->write(Aht20Request::GET_DATA);
-    wire->write(Aht20Request::GET_DATA_PARAM1);
-    wire->write(Aht20Request::GET_DATA_PARAM2);
-    if(wire->endTransmission() != 0)    return false;
-
-    delay(80);  //データが返ってくるまでの待機時間
-    getReceive(data,dataLength);
-
-    //CRC検証
-
+    // 受信不足・測定中・未校正・CRC不一致のデータを変換前に除外する。
+    if (!wire || !data || dataLength != 7) return false;
+    wire->beginTransmission(address);
+    wire->write(GET_DATA);
+    wire->write(GET_DATA_PARAM1);
+    wire->write(GET_DATA_PARAM2);
+    if (wire->endTransmission() != 0) return false;
+    delay(80);
+    if (!getReceive(data, dataLength)) return false;
+    return (data[0] & 0x80) == 0 && (data[0] & 0x08) != 0 && verifyUsingCrc(data);
 
 }
 
@@ -78,4 +74,25 @@ float Ens160Sensor::Aht20Request::temperatureConvertTofloat(uint32_t originalDat
 
 float Ens160Sensor::Aht20Request::humidityConvertTofloat(uint32_t originalData){
     return (static_cast<float>(originalData) / 1048576.0f * 100.0f);
+}
+namespace {
+bool readEnsRegister(TwoWire *wire, uint8_t address, uint8_t reg, uint8_t *bytes, uint8_t length) {
+    wire->beginTransmission(address);
+    wire->write(reg);
+    if (wire->endTransmission() != 0) return false;
+    if (wire->requestFrom(address, length) != length) return false;
+    for (uint8_t i = 0; i < length; ++i) bytes[i] = wire->read();
+    return true;
+}
+}
+bool Ens160Sensor::readCheckedEco2(TwoWire *wire, uint8_t address, uint16_t *value) {
+    if (!wire || !value) return false;
+    uint8_t status = 0, concentration[2] = {};
+    // DATA_STATUSのbit 3:2は、0が正常、1/2が暖機中、3が無効を示す。
+    if (!readEnsRegister(wire, address, 0x20, &status, 1) || (status & 0x0c) != 0) return false;
+    if (!readEnsRegister(wire, address, 0x24, concentration, 2)) return false;
+    uint16_t result = static_cast<uint16_t>(concentration[0]) | (static_cast<uint16_t>(concentration[1]) << 8);
+    if (result < 400 || result > 65000) return false;
+    *value = result;
+    return true;
 }
