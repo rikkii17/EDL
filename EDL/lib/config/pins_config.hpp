@@ -7,8 +7,8 @@
     //各指標表示時の信号先セレクタピンの定義
     #define TEMPERATURE_INDEX 4
     #define HUMIDITY_INDEX 5
-    #define NOISE_INDEX 7
-    #define CO2_INDEX 6
+    #define NOISE_INDEX 6
+    #define CO2_INDEX 7
     #define OVERALL_INDEX 8
 
     //Output bus に使うvalueピンの定義
