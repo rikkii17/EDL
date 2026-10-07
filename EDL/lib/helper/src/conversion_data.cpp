@@ -1,12 +1,12 @@
 #include"conversion_data.hpp"
 
-int Conversion::temperature(uint32_t data){
+int Conversion::temperature(float data){
         data -= ReferenceValue::TEMPERATURE;
         data /= Evaluation_Unit::TEMPERATURE;
         return(8 - std::abs(static_cast<int32_t>(data)));
 }
 
-int Conversion::humidity(uint32_t data){
+int Conversion::humidity(float data){
     data -= ReferenceValue::HUMIDITY;
     data /= Evaluation_Unit::HUMIDITY;
     return(8 - std::abs(static_cast<int32_t>(data)));

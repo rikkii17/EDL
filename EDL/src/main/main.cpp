@@ -308,9 +308,9 @@ void loop() {
 
 
   //それぞれのデータの数値評価を表示
-  outputInterFace.outputNumberOfBus(IndexSelector::TEMPERATURE,evaluationTemperature);
-  outputInterFace.outputNumberOfBus(IndexSelector::HUMIDITY,evaluationHumidity);
-  outputInterFace.outputNumberOfBus(IndexSelector::CO2,evaluationEco2);
-  outputInterFace.outputNumberOfBus(IndexSelector::NOISE,evaluationNoise);
-  outputInterFace.outputNumberOfBus(IndexSelector::OVERALL,evaluationOverall);
+  outputInterFace.outputNumberOfBus(IndexSelector::TEMPERATURE,evaluationTemperature - 1);
+  outputInterFace.outputNumberOfBus(IndexSelector::HUMIDITY,evaluationHumidity - 1);
+  outputInterFace.outputNumberOfBus(IndexSelector::CO2,evaluationEco2 - 1);
+  outputInterFace.outputNumberOfBus(IndexSelector::NOISE,evaluationNoise - 1);
+  outputInterFace.outputNumberOfBus(IndexSelector::OVERALL,evaluationOverall - 1);
 }

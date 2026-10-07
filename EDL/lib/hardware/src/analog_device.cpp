@@ -6,5 +6,5 @@ float AnalogReader::convertToVoltage(int rawVoltage){
     //分解能をもとにしきい値を電圧に変換する
 }
 float AnalogReader::voltageToVolume(float voltage){
-    return(94 + 20*log10(voltage/(speakerConst::boardGain*6.31e-3)));
+    return(20*log10(voltage/(speakerConst::boardGain*6.31e-3)));
 }
